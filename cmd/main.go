@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/Yud1Pp/car-rental/config"
+	"github.com/Yud1Pp/car-rental/internal/router"
 	"github.com/gofiber/fiber/v3"
 	"github.com/joho/godotenv"
 )
@@ -20,9 +21,7 @@ func main() {
 
   app := fiber.New(fiber.Config{})
 
-  app.Get("/ping", func(c fiber.Ctx) error {
-    return c.JSON(fiber.Map{"message": "pong"})
-  })
+  router.SetupRoutes(app)
 
   port := os.Getenv("APP_PORT")
 	fmt.Printf("Server running on port %s\n", port)

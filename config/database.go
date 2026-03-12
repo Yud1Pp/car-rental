@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Yud1Pp/car-rental/internal/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -20,11 +22,22 @@ func ConnectDatabase() {
     os.Getenv("DB_PORT"),
   )
 
-  db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+  db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+    Logger: logger.Default.LogMode(logger.Info),
+  })
   if err != nil {
     panic("Failed connect to database: " + err.Error())
   }
 
   DB = db
+
+  err = DB.AutoMigrate(
+		&model.Customer{},
+	)
+
+  if err != nil {
+		panic("Failed migrate database: " + err.Error())
+	}
+
   fmt.Println("Database connected successfully")
 }
