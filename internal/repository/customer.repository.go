@@ -8,13 +8,13 @@ import (
 type CustomerRepository interface {
 	GetAll() ([]model.Customer, error)
 	GetByID(id uint) (*model.Customer, error)
-  Create(customer *model.Customer) error
-  Update(customer *model.Customer) error
+	Create(customer *model.Customer) error
+	Update(customer *model.Customer) error
 	Delete(id uint) error
 }
 
 type customerRepository struct {
-  db *gorm.DB
+	db *gorm.DB
 }
 
 func NewCustomerRepository(db *gorm.DB) CustomerRepository {
@@ -50,9 +50,29 @@ func (r *customerRepository) Create(customer *model.Customer) error {
 }
 
 func (r *customerRepository) Update(customer *model.Customer) error {
-	return r.db.Save(customer).Error
+	var existingCustomer model.Customer
+	if err := r.db.First(&existingCustomer, customer.ID).Error; err != nil {
+		return err
+	}
+
+	result := r.db.Model(&existingCustomer).Updates(map[string]any{
+		"name":         customer.Name,
+		"nik":          customer.NIK,
+		"phone_number": customer.PhoneNumber,
+	})
+
+	return result.Error
 }
 
 func (r *customerRepository) Delete(id uint) error {
-	return r.db.Delete(&model.Customer{}, id).Error
+	result := r.db.Delete(&model.Customer{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
 }

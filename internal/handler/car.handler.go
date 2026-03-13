@@ -10,18 +10,18 @@ import (
 	"gorm.io/gorm"
 )
 
-type CustomerHandler struct {
-	service service.CustomerService
+type CarHandler struct {
+	service service.CarService
 }
 
-func NewCustomerHandler(service service.CustomerService) *CustomerHandler {
-	return &CustomerHandler{service: service}
+func NewCarHandler(service service.CarService) *CarHandler {
+	return &CarHandler{service: service}
 }
 
-func (h *CustomerHandler) handleDatabaseError(c fiber.Ctx, err error) error {
+func (h *CarHandler) handleDatabaseError(c fiber.Ctx, err error) error {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "customer not found",
+			"error": "car not found",
 		})
 	}
 
@@ -30,17 +30,17 @@ func (h *CustomerHandler) handleDatabaseError(c fiber.Ctx, err error) error {
 	})
 }
 
-func (h *CustomerHandler) GetCustomers(c fiber.Ctx) error {
+func (h *CarHandler) GetCars(c fiber.Ctx) error {
 
-	customers, err := h.service.GetAll()
+	cars, err := h.service.GetAll()
 	if err != nil {
 		return h.handleDatabaseError(c, err)
 	}
 
-	return c.JSON(customers)
+	return c.JSON(cars)
 }
 
-func (h *CustomerHandler) GetCustomerByID(c fiber.Ctx) error {
+func (h *CarHandler) GetCarByID(c fiber.Ctx) error {
 
 	idParam := c.Params("id")
 
@@ -51,31 +51,32 @@ func (h *CustomerHandler) GetCustomerByID(c fiber.Ctx) error {
 		})
 	}
 
-	customer, err := h.service.GetByID(uint(id))
+	car, err := h.service.GetByID(uint(id))
 	if err != nil {
 		return h.handleDatabaseError(c, err)
 	}
 
-	return c.JSON(customer)
+	return c.JSON(car)
 }
 
-func (h *CustomerHandler) CreateCustomer(c fiber.Ctx) error {
-	var customer model.Customer
+func (h *CarHandler) CreateCar(c fiber.Ctx) error {
 
-	if err := c.Bind().Body(&customer); err != nil {
+	var car model.Car
+
+	if err := c.Bind().Body(&car); err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"error": "invalid request body",
 		})
 	}
 
-	if err := h.service.Create(&customer); err != nil {
+	if err := h.service.Create(&car); err != nil {
 		return h.handleDatabaseError(c, err)
 	}
 
-	return c.Status(201).JSON(customer)
+	return c.Status(201).JSON(car)
 }
 
-func (h *CustomerHandler) UpdateCustomer(c fiber.Ctx) error {
+func (h *CarHandler) UpdateCar(c fiber.Ctx) error {
 
 	idParam := c.Params("id")
 
@@ -86,24 +87,24 @@ func (h *CustomerHandler) UpdateCustomer(c fiber.Ctx) error {
 		})
 	}
 
-	var customer model.Customer
+	var car model.Car
 
-	if err := c.Bind().Body(&customer); err != nil {
+	if err := c.Bind().Body(&car); err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"error": "invalid request body",
 		})
 	}
 
-	customer.ID = uint(id)
+	car.ID = uint(id)
 
-	if err := h.service.Update(&customer); err != nil {
+	if err := h.service.Update(&car); err != nil {
 		return h.handleDatabaseError(c, err)
 	}
 
-	return c.JSON(customer)
+	return c.JSON(car)
 }
 
-func (h *CustomerHandler) DeleteCustomer(c fiber.Ctx) error {
+func (h *CarHandler) DeleteCar(c fiber.Ctx) error {
 
 	idParam := c.Params("id")
 
@@ -119,6 +120,6 @@ func (h *CustomerHandler) DeleteCustomer(c fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"message": "customer deleted",
+		"message": "car deleted",
 	})
 }
