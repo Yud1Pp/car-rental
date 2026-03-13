@@ -13,7 +13,7 @@ func setupBookingRoutes(app *fiber.App) {
 	bookingRepo := repository.NewBookingRepository(config.DB)
 	carRepo := repository.NewCarRepository(config.DB)
 
-	bookingService := service.NewBookingService(bookingRepo, carRepo)
+	bookingService := service.NewBookingService(config.DB, bookingRepo, carRepo)
 	bookingHandler := handler.NewBookingHandler(bookingService)
 
 	api := app.Group(utils.APIBaseURL)

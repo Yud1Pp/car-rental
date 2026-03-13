@@ -30,6 +30,13 @@ func (h *BookingHandler) handleDatabaseError(c fiber.Ctx, err error) error {
 	})
 }
 
+// GetBookings godoc
+// @Summary Get all bookings
+// @Description Retrieve list of all bookings
+// @Tags bookings
+// @Produce json
+// @Success 200 {array} model.Booking
+// @Router /bookings [get]
 func (h *BookingHandler) GetBookings(c fiber.Ctx) error {
 
 	bookings, err := h.service.GetAll()
@@ -40,6 +47,15 @@ func (h *BookingHandler) GetBookings(c fiber.Ctx) error {
 	return c.JSON(bookings)
 }
 
+// GetBookingByID godoc
+// @Summary Get booking by ID
+// @Description Retrieve booking details by ID
+// @Tags bookings
+// @Produce json
+// @Param id path int true "Booking ID"
+// @Success 200 {object} model.Booking
+// @Failure 404 {object} map[string]string
+// @Router /bookings/{id} [get]
 func (h *BookingHandler) GetBookingByID(c fiber.Ctx) error {
 
 	idParam := c.Params("id")
@@ -59,6 +75,16 @@ func (h *BookingHandler) GetBookingByID(c fiber.Ctx) error {
 	return c.JSON(booking)
 }
 
+// CreateBooking godoc
+// @Summary Create new booking
+// @Description Create a new booking record
+// @Tags bookings
+// @Accept json
+// @Produce json
+// @Param booking body model.BookingRequest true "Booking Data"
+// @Success 201 {object} model.Booking
+// @Failure 400 {object} map[string]string
+// @Router /bookings [post]
 func (h *BookingHandler) CreateBooking(c fiber.Ctx) error {
 
 	var booking model.Booking
@@ -73,9 +99,26 @@ func (h *BookingHandler) CreateBooking(c fiber.Ctx) error {
 		return h.handleDatabaseError(c, err)
 	}
 
-	return c.Status(201).JSON(booking)
+	createdBooking, err := h.service.GetByID(booking.ID)
+	if err != nil {
+		return h.handleDatabaseError(c, err)
+	}
+
+	return c.Status(201).JSON(createdBooking)
 }
 
+// UpdateBooking godoc
+// @Summary Update booking
+// @Description Update an existing booking
+// @Tags bookings
+// @Accept json
+// @Produce json
+// @Param id path int true "Booking ID"
+// @Param booking body model.UpdateBookingRequest true "Booking Data"
+// @Success 200 {object} model.Booking
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /bookings/{id} [put]
 func (h *BookingHandler) UpdateBooking(c fiber.Ctx) error {
 
 	idParam := c.Params("id")
@@ -101,9 +144,23 @@ func (h *BookingHandler) UpdateBooking(c fiber.Ctx) error {
 		return h.handleDatabaseError(c, err)
 	}
 
-	return c.JSON(booking)
+	updatedBooking, err := h.service.GetByID(booking.ID)
+	if err != nil {
+		return h.handleDatabaseError(c, err)
+	}
+
+	return c.JSON(updatedBooking)
 }
 
+// DeleteBooking godoc
+// @Summary Delete booking
+// @Description Delete booking by ID
+// @Tags bookings
+// @Produce json
+// @Param id path int true "Booking ID"
+// @Success 200 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /bookings/{id} [delete]
 func (h *BookingHandler) DeleteBooking(c fiber.Ctx) error {
 
 	idParam := c.Params("id")

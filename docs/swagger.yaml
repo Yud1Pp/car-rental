@@ -1,0 +1,503 @@
+basePath: /api/v1
+definitions:
+  model.Booking:
+    properties:
+      car:
+        $ref: '#/definitions/model.Car'
+      car_id:
+        type: integer
+      customer:
+        $ref: '#/definitions/model.Customer'
+      customer_id:
+        type: integer
+      end_rent:
+        type: string
+      finished:
+        type: boolean
+      id:
+        type: integer
+      start_rent:
+        type: string
+      total_cost:
+        type: integer
+    type: object
+  model.BookingRequest:
+    properties:
+      car_id:
+        example: 2
+        type: integer
+      customer_id:
+        example: 1
+        type: integer
+      end_rent:
+        example: "2026-03-15T09:00:00Z"
+        type: string
+      start_rent:
+        example: "2026-03-13T09:00:00Z"
+        type: string
+    type: object
+  model.Car:
+    properties:
+      daily_rent:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      stock:
+        type: integer
+    type: object
+  model.CarRequest:
+    properties:
+      daily_rent:
+        example: 350000
+        type: integer
+      name:
+        example: Toyota Avanza
+        type: string
+      stock:
+        example: 5
+        type: integer
+    type: object
+  model.Customer:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      nik:
+        type: string
+      phone_number:
+        type: string
+    type: object
+  model.CustomerRequest:
+    properties:
+      name:
+        example: Eko Purwanto
+        type: string
+      nik:
+        example: "87690234567"
+        type: string
+      phone_number:
+        example: "08769788865"
+        type: string
+    type: object
+  model.UpdateBookingRequest:
+    properties:
+      car_id:
+        example: 2
+        type: integer
+      customer_id:
+        example: 1
+        type: integer
+      end_rent:
+        example: "2026-03-15T09:00:00Z"
+        type: string
+      finished:
+        example: false
+        type: boolean
+      start_rent:
+        example: "2026-03-13T09:00:00Z"
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: Simple Car Rental API
+  title: Car Rental API
+  version: "1.0"
+paths:
+  /bookings:
+    get:
+      description: Retrieve list of all bookings
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Booking'
+            type: array
+      summary: Get all bookings
+      tags:
+      - bookings
+    post:
+      consumes:
+      - application/json
+      description: Create a new booking record
+      parameters:
+      - description: Booking Data
+        in: body
+        name: booking
+        required: true
+        schema:
+          $ref: '#/definitions/model.BookingRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Booking'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create new booking
+      tags:
+      - bookings
+  /bookings/{id}:
+    delete:
+      description: Delete booking by ID
+      parameters:
+      - description: Booking ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete booking
+      tags:
+      - bookings
+    get:
+      description: Retrieve booking details by ID
+      parameters:
+      - description: Booking ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Booking'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get booking by ID
+      tags:
+      - bookings
+    put:
+      consumes:
+      - application/json
+      description: Update an existing booking
+      parameters:
+      - description: Booking ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Booking Data
+        in: body
+        name: booking
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateBookingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Booking'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update booking
+      tags:
+      - bookings
+  /cars:
+    get:
+      description: Retrieve list of all cars
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Car'
+            type: array
+      summary: Get all cars
+      tags:
+      - cars
+    post:
+      consumes:
+      - application/json
+      description: Add a new car to the system
+      parameters:
+      - description: Car Data
+        in: body
+        name: car
+        required: true
+        schema:
+          $ref: '#/definitions/model.CarRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Car'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create new car
+      tags:
+      - cars
+  /cars/{id}:
+    delete:
+      description: Delete a car by ID
+      parameters:
+      - description: Car ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete car
+      tags:
+      - cars
+    get:
+      description: Retrieve a car by ID
+      parameters:
+      - description: Car ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Car'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get car by ID
+      tags:
+      - cars
+    put:
+      consumes:
+      - application/json
+      description: Update existing car data
+      parameters:
+      - description: Car ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Car Data
+        in: body
+        name: car
+        required: true
+        schema:
+          $ref: '#/definitions/model.CarRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Car'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update car
+      tags:
+      - cars
+  /customers:
+    get:
+      description: Retrieve a list of all customers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Customer'
+            type: array
+      summary: Get all customers
+      tags:
+      - customers
+    post:
+      consumes:
+      - application/json
+      description: Create a new customer
+      parameters:
+      - description: Customer Data
+        in: body
+        name: customer
+        required: true
+        schema:
+          $ref: '#/definitions/model.CustomerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Customer'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create new customer
+      tags:
+      - customers
+  /customers/{id}:
+    delete:
+      description: Delete customer by ID
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete customer
+      tags:
+      - customers
+    get:
+      description: Retrieve a single customer by ID
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Customer'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get customer by ID
+      tags:
+      - customers
+    put:
+      consumes:
+      - application/json
+      description: Update an existing customer
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Customer Data
+        in: body
+        name: customer
+        required: true
+        schema:
+          $ref: '#/definitions/model.CustomerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Customer'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update customer
+      tags:
+      - customers
+swagger: "2.0"

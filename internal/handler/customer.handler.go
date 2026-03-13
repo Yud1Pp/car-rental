@@ -30,6 +30,13 @@ func (h *CustomerHandler) handleDatabaseError(c fiber.Ctx, err error) error {
 	})
 }
 
+// GetCustomers godoc
+// @Summary Get all customers
+// @Description Retrieve a list of all customers
+// @Tags customers
+// @Produce json
+// @Success 200 {array} model.Customer
+// @Router /customers [get]
 func (h *CustomerHandler) GetCustomers(c fiber.Ctx) error {
 
 	customers, err := h.service.GetAll()
@@ -40,6 +47,15 @@ func (h *CustomerHandler) GetCustomers(c fiber.Ctx) error {
 	return c.JSON(customers)
 }
 
+// GetCustomerByID godoc
+// @Summary Get customer by ID
+// @Description Retrieve a single customer by ID
+// @Tags customers
+// @Produce json
+// @Param id path int true "Customer ID"
+// @Success 200 {object} model.Customer
+// @Failure 404 {object} map[string]string
+// @Router /customers/{id} [get]
 func (h *CustomerHandler) GetCustomerByID(c fiber.Ctx) error {
 
 	idParam := c.Params("id")
@@ -59,6 +75,16 @@ func (h *CustomerHandler) GetCustomerByID(c fiber.Ctx) error {
 	return c.JSON(customer)
 }
 
+// CreateCustomer godoc
+// @Summary Create new customer
+// @Description Create a new customer
+// @Tags customers
+// @Accept json
+// @Produce json
+// @Param customer body model.CustomerRequest true "Customer Data"
+// @Success 201 {object} model.Customer
+// @Failure 400 {object} map[string]string
+// @Router /customers [post]
 func (h *CustomerHandler) CreateCustomer(c fiber.Ctx) error {
 	var customer model.Customer
 
@@ -75,6 +101,18 @@ func (h *CustomerHandler) CreateCustomer(c fiber.Ctx) error {
 	return c.Status(201).JSON(customer)
 }
 
+// UpdateCustomer godoc
+// @Summary Update customer
+// @Description Update an existing customer
+// @Tags customers
+// @Accept json
+// @Produce json
+// @Param id path int true "Customer ID"
+// @Param customer body model.CustomerRequest true "Customer Data"
+// @Success 200 {object} model.Customer
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /customers/{id} [put]
 func (h *CustomerHandler) UpdateCustomer(c fiber.Ctx) error {
 
 	idParam := c.Params("id")
@@ -103,6 +141,15 @@ func (h *CustomerHandler) UpdateCustomer(c fiber.Ctx) error {
 	return c.JSON(customer)
 }
 
+// DeleteCustomer godoc
+// @Summary Delete customer
+// @Description Delete customer by ID
+// @Tags customers
+// @Produce json
+// @Param id path int true "Customer ID"
+// @Success 200 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /customers/{id} [delete]
 func (h *CustomerHandler) DeleteCustomer(c fiber.Ctx) error {
 
 	idParam := c.Params("id")

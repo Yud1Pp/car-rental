@@ -6,10 +6,10 @@ type Booking struct {
 	ID uint `json:"id" gorm:"primaryKey"`
 
 	CustomerID uint     `json:"customer_id"`
-	Customer   Customer `gorm:"foreignKey:CustomerID"`
+	Customer   Customer `json:"customer" gorm:"foreignKey:CustomerID"`
 
 	CarID uint `json:"car_id"`
-	Car   Car  `gorm:"foreignKey:CarID"`
+	Car   Car  `json:"car" gorm:"foreignKey:CarID"`
 
 	StartRent time.Time `json:"start_rent"`
 	EndRent   time.Time `json:"end_rent"`
