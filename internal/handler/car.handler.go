@@ -30,6 +30,13 @@ func (h *CarHandler) handleDatabaseError(c fiber.Ctx, err error) error {
 	})
 }
 
+// GetCars godoc
+// @Summary Get all cars
+// @Description Retrieve list of all cars
+// @Tags cars
+// @Produce json
+// @Success 200 {array} model.Car
+// @Router /cars [get]
 func (h *CarHandler) GetCars(c fiber.Ctx) error {
 
 	cars, err := h.service.GetAll()
@@ -40,6 +47,15 @@ func (h *CarHandler) GetCars(c fiber.Ctx) error {
 	return c.JSON(cars)
 }
 
+// GetCarByID godoc
+// @Summary Get car by ID
+// @Description Retrieve a car by ID
+// @Tags cars
+// @Produce json
+// @Param id path int true "Car ID"
+// @Success 200 {object} model.Car
+// @Failure 404 {object} map[string]string
+// @Router /cars/{id} [get]
 func (h *CarHandler) GetCarByID(c fiber.Ctx) error {
 
 	idParam := c.Params("id")
@@ -59,6 +75,16 @@ func (h *CarHandler) GetCarByID(c fiber.Ctx) error {
 	return c.JSON(car)
 }
 
+// CreateCar godoc
+// @Summary Create new car
+// @Description Add a new car to the system
+// @Tags cars
+// @Accept json
+// @Produce json
+// @Param car body model.CarRequest true "Car Data"
+// @Success 201 {object} model.Car
+// @Failure 400 {object} map[string]string
+// @Router /cars [post]
 func (h *CarHandler) CreateCar(c fiber.Ctx) error {
 
 	var car model.Car
@@ -76,6 +102,18 @@ func (h *CarHandler) CreateCar(c fiber.Ctx) error {
 	return c.Status(201).JSON(car)
 }
 
+// UpdateCar godoc
+// @Summary Update car
+// @Description Update existing car data
+// @Tags cars
+// @Accept json
+// @Produce json
+// @Param id path int true "Car ID"
+// @Param car body model.CarRequest true "Car Data"
+// @Success 200 {object} model.Car
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /cars/{id} [put]
 func (h *CarHandler) UpdateCar(c fiber.Ctx) error {
 
 	idParam := c.Params("id")
@@ -104,6 +142,15 @@ func (h *CarHandler) UpdateCar(c fiber.Ctx) error {
 	return c.JSON(car)
 }
 
+// DeleteCar godoc
+// @Summary Delete car
+// @Description Delete a car by ID
+// @Tags cars
+// @Produce json
+// @Param id path int true "Car ID"
+// @Success 200 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /cars/{id} [delete]
 func (h *CarHandler) DeleteCar(c fiber.Ctx) error {
 
 	idParam := c.Params("id")
