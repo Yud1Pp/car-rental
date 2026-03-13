@@ -33,6 +33,7 @@ func ConnectDatabase() {
 
   err = DB.AutoMigrate(
 		&model.Customer{},
+    &model.Car{},
 	)
 
   if err != nil {
