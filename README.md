@@ -1,20 +1,20 @@
 # Car Rental API
 
-Backend API sederhana untuk manajemen rental mobil menggunakan Go, Fiber v3, GORM, dan PostgreSQL.
+Backend API sederhana untuk manajemen rental mobil menggunakan Go, Fiber v3, GORM, PostgreSQL, dan Swagger.
 
-API ini menyediakan CRUD untuk:
+API ini menyediakan:
 
-- customer
-- car
-- booking
+- CRUD customer
+- CRUD car
+- CRUD booking
 
-Selain CRUD dasar, modul booking sudah memiliki business rule utama:
+Business rule utama pada booking:
 
-- membuat booking akan mengurangi `stock` mobil
+- membuat booking mengurangi stok mobil
 - `total_cost` dihitung otomatis dari durasi sewa dan `daily_rent`
-- update booking akan menghitung ulang `total_cost` jika mobil atau tanggal berubah
-- perubahan status `finished` akan memengaruhi stok mobil
-- perpindahan mobil pada booking aktif juga menyesuaikan stok mobil lama dan mobil baru
+- update booking menghitung ulang `total_cost`
+- perubahan status `finished` memengaruhi stok mobil
+- perpindahan mobil pada booking aktif akan menyesuaikan stok mobil lama dan baru
 
 ## Teknologi
 
@@ -22,30 +22,21 @@ Selain CRUD dasar, modul booking sudah memiliki business rule utama:
 - Fiber v3
 - GORM
 - PostgreSQL
-- Swaggo / Swagger UI
+- Swaggo
 
-## Struktur Data
+## ERD
 
-### Entitas
+Ringkasan relasi:
 
-- `customers`
-  - menyimpan data penyewa
-- `cars`
-  - menyimpan data mobil dan stok yang tersedia
-- `bookings`
-  - menyimpan transaksi rental yang menghubungkan customer dan car
+- satu customer dapat memiliki banyak booking
+- satu car dapat memiliki banyak booking
+- satu booking terkait ke satu customer dan satu car
 
-### Ringkasan ERD
-
-- Satu customer dapat memiliki banyak booking
-- Satu car dapat memiliki banyak booking
-- Satu booking hanya terkait ke satu customer dan satu car
-
-### Gambar ERD
+Gambar ERD:
 
 ![ERD Car Rental](./erd_car_rental.png)
 
-## Endpoint API
+## Endpoint
 
 Base URL:
 
@@ -53,11 +44,11 @@ Base URL:
 /api/v1
 ```
 
-### Health Check
+Health check:
 
 - `GET /ping`
 
-### Customers
+Customer:
 
 - `GET /api/v1/customers/`
 - `GET /api/v1/customers/:id`
@@ -65,7 +56,7 @@ Base URL:
 - `PUT /api/v1/customers/:id`
 - `DELETE /api/v1/customers/:id`
 
-### Cars
+Car:
 
 - `GET /api/v1/cars/`
 - `GET /api/v1/cars/:id`
@@ -73,7 +64,7 @@ Base URL:
 - `PUT /api/v1/cars/:id`
 - `DELETE /api/v1/cars/:id`
 
-### Bookings
+Booking:
 
 - `GET /api/v1/bookings/`
 - `GET /api/v1/bookings/:id`
@@ -83,9 +74,7 @@ Base URL:
 
 ## Menjalankan Project
 
-### 1. Siapkan environment variable
-
-Buat file `.env` dengan isi seperti berikut(dapat disesuaika):
+### 1. Siapkan `.env`
 
 ```env
 APP_PORT=3000
@@ -96,7 +85,7 @@ DB_PASSWORD=postgres
 DB_NAME=car_rental
 ```
 
-### 2. Jalankan dependency dan generate Swagger docs
+### 2. Install dependency dan generate Swagger docs
 
 ```bash
 go mod tidy
@@ -109,7 +98,7 @@ swag init -g cmd/main.go -o docs
 go run ./cmd
 ```
 
-Server akan berjalan di:
+Server:
 
 ```text
 http://localhost:3000
@@ -121,9 +110,38 @@ Swagger UI:
 http://localhost:3000/swagger/index.html
 ```
 
-## Request Body yang Dipakai
+## Menguji API
 
-### Create / Update Customer
+API bisa diuji menggunakan:
+
+- Swagger UI
+- `curl`
+- Postman
+- REST Client di VS Code
+
+Cara paling mudah untuk project ini adalah lewat Swagger UI.
+
+### Uji dengan Swagger UI
+
+1. Jalankan aplikasi:
+
+```bash
+go run ./cmd
+```
+
+2. Buka:
+
+```text
+http://localhost:3000/swagger/index.html
+```
+
+3. Pilih endpoint yang ingin diuji, misalnya `POST /customers`
+
+4. Klik `Try it out`
+
+5. Isi body JSON
+
+Contoh create customer:
 
 ```json
 {
@@ -133,7 +151,46 @@ http://localhost:3000/swagger/index.html
 }
 ```
 
-### Create / Update Car
+6. Klik `Execute`
+
+7. Lihat:
+
+- response body
+- response code
+- curl command yang dihasilkan Swagger
+
+### Uji dengan PowerShell
+
+Contoh `curl.exe`:
+
+```powershell
+curl.exe -X POST http://localhost:3000/api/v1/customers/ `
+  -H "Content-Type: application/json" `
+  -d "{\"name\":\"Yudi Pratama\",\"nik\":\"1234567890\",\"phone_number\":\"089789101234\"}"
+```
+
+Contoh `Invoke-RestMethod`:
+
+```powershell
+Invoke-RestMethod -Method POST `
+  -Uri "http://localhost:3000/api/v1/customers/" `
+  -ContentType "application/json" `
+  -Body '{"name":"Yudi Pratama","nik":"1234567890","phone_number":"089789101234"}'
+```
+
+## Contoh Request Body
+
+Create / update customer:
+
+```json
+{
+  "name": "Yudi Pratama",
+  "nik": "1234567890",
+  "phone_number": "089789101234"
+}
+```
+
+Create / update car:
 
 ```json
 {
@@ -143,9 +200,7 @@ http://localhost:3000/swagger/index.html
 }
 ```
 
-### Create Booking
-
-`total_cost` tidak perlu dikirim karena dihitung oleh service.
+Create booking:
 
 ```json
 {
@@ -156,9 +211,7 @@ http://localhost:3000/swagger/index.html
 }
 ```
 
-### Update Booking
-
-`total_cost` tidak perlu dikirim karena akan dihitung ulang oleh service.
+Update booking:
 
 ```json
 {
@@ -172,21 +225,83 @@ http://localhost:3000/swagger/index.html
 
 ## Skenario Pengujian End-to-End
 
-Bagian ini dibuat seperti cerita penggunaan sistem, tetapi tetap memakai seluruh API yang tersedia.
+Cerita pengujian:
 
-### Cerita
+Sebuah rental mobil menerima customer baru bernama Yudi Pratama. Admin menambahkan dua mobil ke katalog. Setelah itu Yudi membuat booking. Saat booking dibuat, stok mobil harus turun dan total biaya harus terhitung otomatis. Lalu durasi booking diperpanjang, mobil booking dipindah ke mobil lain, dan akhirnya booking diselesaikan sehingga stok mobil kembali naik. Setelah semua valid, admin menghapus data booking, mobil, dan customer.
 
-Sebuah rental mobil menerima customer baru bernama Yudi Pratama. Admin kemudian menambahkan dua mobil ke katalog. Setelah itu Yudi memesan satu mobil untuk beberapa hari. Saat booking dibuat, stok mobil harus berkurang dan total biaya harus terhitung otomatis. Di tengah jalan, durasi booking diperpanjang. Setelah mobil dikembalikan, status booking diubah menjadi selesai dan stok mobil harus kembali bertambah. Setelah seluruh proses selesai, admin mengecek ulang semua data lalu mencoba operasi hapus.
+### Menjalankan Skenario Ini di Swagger UI
+
+Skenario end-to-end di bawah ini juga bisa dijalankan sepenuhnya lewat Swagger UI, bukan hanya dengan `curl`.
+
+Langkahnya:
+
+1. Jalankan aplikasi:
+
+```bash
+go run ./cmd
+```
+
+2. Buka Swagger UI:
+
+```text
+http://localhost:3000/swagger/index.html
+```
+
+3. Jalankan endpoint sesuai urutan skenario di bawah, mulai dari:
+
+- `POST /customers`
+- `GET /customers`
+- `PUT /customers/{id}`
+- `POST /cars`
+- `GET /cars`
+- `POST /bookings`
+- `PUT /bookings/{id}`
+- `GET /bookings/{id}`
+- `DELETE /bookings/{id}`
+
+4. Untuk setiap endpoint:
+
+- klik endpoint-nya
+- klik `Try it out`
+- isi parameter path jika ada, misalnya `id`
+- isi request body JSON jika endpoint menerima body
+- klik `Execute`
+
+5. Simpan `id` dari hasil create:
+
+- `customer id` dari `POST /customers`
+- `car id` dari `POST /cars`
+- `booking id` dari `POST /bookings`
+
+6. Gunakan `id` tersebut pada langkah berikutnya, misalnya:
+
+- `GET /customers/{id}`
+- `PUT /cars/{id}`
+- `PUT /bookings/{id}`
+- `DELETE /bookings/{id}`
+
+7. Setelah tiap langkah penting, cek response body untuk memastikan business rule berjalan:
+
+- setelah create booking, stok mobil berkurang
+- setelah pindah mobil, stok mobil lama dan baru berubah sesuai aturan
+- setelah `finished=true`, stok mobil kembali bertambah
+- setelah update tanggal atau mobil, `total_cost` berubah sesuai kondisi terbaru
+
+8. Jika ingin memeriksa data akhir dengan cepat, jalankan endpoint list/detail:
+
+- `GET /customers`
+- `GET /cars`
+- `GET /bookings`
 
 ### Langkah Uji
 
-#### 1. Cek health endpoint
+1. Cek health endpoint
 
 ```bash
 curl http://localhost:3000/ping
 ```
 
-#### 2. Buat customer baru
+2. Buat customer
 
 ```bash
 curl -X POST http://localhost:3000/api/v1/customers/ \
@@ -194,21 +309,19 @@ curl -X POST http://localhost:3000/api/v1/customers/ \
   -d "{\"name\":\"Yudi Pratama\",\"nik\":\"1234567890\",\"phone_number\":\"089789101234\"}"
 ```
 
-Catat `id` customer yang dihasilkan. Misal hasilnya `1`.
-
-#### 3. Lihat daftar customer
+3. Lihat semua customer
 
 ```bash
 curl http://localhost:3000/api/v1/customers/
 ```
 
-#### 4. Lihat detail customer
+4. Lihat detail customer
 
 ```bash
 curl http://localhost:3000/api/v1/customers/1
 ```
 
-#### 5. Update customer
+5. Update customer
 
 ```bash
 curl -X PUT http://localhost:3000/api/v1/customers/1 \
@@ -216,7 +329,7 @@ curl -X PUT http://localhost:3000/api/v1/customers/1 \
   -d "{\"name\":\"Yudi Pratama Update\",\"nik\":\"1234567890\",\"phone_number\":\"081234567890\"}"
 ```
 
-#### 6. Tambahkan mobil pertama
+6. Tambah mobil pertama
 
 ```bash
 curl -X POST http://localhost:3000/api/v1/cars/ \
@@ -224,45 +337,36 @@ curl -X POST http://localhost:3000/api/v1/cars/ \
   -d "{\"name\":\"Toyota Camry\",\"stock\":1,\"daily_rent\":1000000}"
 ```
 
-Misal hasil `id` mobil pertama adalah `1`.
-
-#### 7. Tambahkan mobil kedua
+7. Tambah mobil kedua
 
 ```bash
 curl -X POST http://localhost:3000/api/v1/cars/ \
   -H "Content-Type: application/json" \
-  -d "{\"name\":\"Honda Civic\",\"stock\":2,\"daily_rent\":750000}"
+  -d "{\"name\":\"Honda Civic\",\"stock\":2,\"daily_rent\":800000}"
 ```
 
-Misal hasil `id` mobil kedua adalah `2`.
-
-#### 8. Lihat semua mobil
+8. Lihat semua mobil
 
 ```bash
 curl http://localhost:3000/api/v1/cars/
 ```
 
-#### 9. Lihat detail mobil pertama
+9. Lihat detail mobil
 
 ```bash
 curl http://localhost:3000/api/v1/cars/1
+curl http://localhost:3000/api/v1/cars/2
 ```
 
-#### 10. Update data mobil kedua
+10. Update mobil
 
 ```bash
 curl -X PUT http://localhost:3000/api/v1/cars/2 \
   -H "Content-Type: application/json" \
-  -d "{\"name\":\"Honda Civic RS\",\"stock\":2,\"daily_rent\":800000}"
+  -d "{\"name\":\"Honda Civic RS\",\"stock\":2,\"daily_rent\":850000}"
 ```
 
-#### 11. Buat booking
-
-Saat booking dibuat:
-
-- stok mobil target harus berkurang
-- `total_cost` harus dihitung otomatis
-- response booking akan memuat `customer` dan `car`
+11. Buat booking
 
 ```bash
 curl -X POST http://localhost:3000/api/v1/bookings/ \
@@ -270,26 +374,19 @@ curl -X POST http://localhost:3000/api/v1/bookings/ \
   -d "{\"customer_id\":1,\"car_id\":1,\"start_rent\":\"2026-03-13T09:00:00Z\",\"end_rent\":\"2026-03-15T09:00:00Z\"}"
 ```
 
-Misal hasil `id` booking adalah `1`.
-
-#### 12. Cek semua booking
+12. Lihat semua booking
 
 ```bash
 curl http://localhost:3000/api/v1/bookings/
 ```
 
-#### 13. Cek detail booking
+13. Lihat detail booking
 
 ```bash
 curl http://localhost:3000/api/v1/bookings/1
 ```
 
-#### 14. Ubah booking karena durasi sewa diperpanjang
-
-Pada langkah ini:
-
-- `total_cost` harus dihitung ulang
-- stok tetap aman karena mobil tidak berubah dan booking belum selesai
+14. Perpanjang booking
 
 ```bash
 curl -X PUT http://localhost:3000/api/v1/bookings/1 \
@@ -297,13 +394,7 @@ curl -X PUT http://localhost:3000/api/v1/bookings/1 \
   -d "{\"customer_id\":1,\"car_id\":1,\"start_rent\":\"2026-03-13T09:00:00Z\",\"end_rent\":\"2026-03-16T09:00:00Z\",\"finished\":false}"
 ```
 
-#### 15. Ubah booking ke mobil lain
-
-Pada langkah ini:
-
-- stok mobil lama harus kembali
-- stok mobil baru harus berkurang
-- `total_cost` harus dihitung ulang memakai `daily_rent` mobil baru
+15. Pindahkan booking ke mobil lain
 
 ```bash
 curl -X PUT http://localhost:3000/api/v1/bookings/1 \
@@ -311,12 +402,7 @@ curl -X PUT http://localhost:3000/api/v1/bookings/1 \
   -d "{\"customer_id\":1,\"car_id\":2,\"start_rent\":\"2026-03-13T09:00:00Z\",\"end_rent\":\"2026-03-16T09:00:00Z\",\"finished\":false}"
 ```
 
-#### 16. Selesaikan booking
-
-Pada langkah ini:
-
-- status `finished` berubah menjadi `true`
-- stok mobil yang dipakai harus kembali bertambah
+16. Selesaikan booking
 
 ```bash
 curl -X PUT http://localhost:3000/api/v1/bookings/1 \
@@ -324,35 +410,28 @@ curl -X PUT http://localhost:3000/api/v1/bookings/1 \
   -d "{\"customer_id\":1,\"car_id\":2,\"start_rent\":\"2026-03-13T09:00:00Z\",\"end_rent\":\"2026-03-16T09:00:00Z\",\"finished\":true}"
 ```
 
-#### 17. Verifikasi akhir
-
-Lihat kembali booking:
+17. Verifikasi data akhir
 
 ```bash
 curl http://localhost:3000/api/v1/bookings/1
-```
-
-Lihat kembali mobil:
-
-```bash
 curl http://localhost:3000/api/v1/cars/1
 curl http://localhost:3000/api/v1/cars/2
 ```
 
-#### 18. Uji delete booking
+18. Hapus booking
 
 ```bash
 curl -X DELETE http://localhost:3000/api/v1/bookings/1
 ```
 
-#### 19. Uji delete car
+19. Hapus mobil
 
 ```bash
 curl -X DELETE http://localhost:3000/api/v1/cars/1
 curl -X DELETE http://localhost:3000/api/v1/cars/2
 ```
 
-#### 20. Uji delete customer
+20. Hapus customer
 
 ```bash
 curl -X DELETE http://localhost:3000/api/v1/customers/1
@@ -363,16 +442,16 @@ curl -X DELETE http://localhost:3000/api/v1/customers/1
 - customer berhasil dibuat, dilihat, diupdate, dan dihapus
 - car berhasil dibuat, dilihat, diupdate, dan dihapus
 - booking berhasil dibuat, dilihat, diupdate, dan dihapus
-- saat booking dibuat, stok mobil berkurang
-- saat booking selesai, stok mobil bertambah kembali
-- saat mobil booking diganti, stok mobil lama dan baru ikut menyesuaikan
+- stok mobil turun saat booking dibuat
+- stok mobil menyesuaikan saat booking dipindah ke mobil lain
+- stok mobil naik kembali saat booking selesai
 - `total_cost` selalu dihitung otomatis oleh service
-- response booking menampilkan data relasi `customer` dan `car`
+- response booking memuat relasi `customer` dan `car`
 
 ## Catatan
 
-- Project ini memakai `AutoMigrate`, jadi tabel akan dibuat/diupdate saat aplikasi start
-- Swagger docs harus digenerate ulang setelah perubahan anotasi:
+- project memakai `AutoMigrate` saat aplikasi start
+- setelah mengubah anotasi Swagger, generate ulang docs:
 
 ```bash
 swag init -g cmd/main.go -o docs
