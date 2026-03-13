@@ -11,4 +11,5 @@ func SetupRoutes(app *fiber.App) {
 
 	setupCustomerRoutes(app)
 	setupCarRoutes(app)
+	setupBookingRoutes(app)
 }
